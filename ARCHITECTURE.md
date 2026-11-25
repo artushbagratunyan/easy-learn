@@ -214,7 +214,7 @@ An integrated mini-portfolio can combine the tracks: HTML provides structure, CS
 
 ### MVP and later phases
 
-The MVP should include a home page with four tracks, a lesson catalog, and a challenge page with a goal, editor, run/check action, hints, and explanation. It should save attempts and learner progress. Start with a few complete challenges per track and validate the learning loop before building a large course catalog.
+The MVP should include a home page with four tracks; a track page with a short video/animated mini-course followed by 10–20 progressive challenges; a challenge experience with an editor, sandboxed preview or safe check, progressive hints, and explanations; and an integrated mini-project. Save attempts and learner progress. Deliver at least 10 polished challenges per track in the first release, with a clear path to grow each track to 20.
 
 Later phases can add more lessons, integrated projects, profile/achievements, peer review, and a safe Python runtime. Do not run learner-provided Python directly inside Django. Early Python challenges can use expected-output or reasoning tasks; execution can be added later in an isolated worker or runner.
 
