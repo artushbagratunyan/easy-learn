@@ -2,6 +2,8 @@
 
 > Стартовый план продукта. Это проектная основа, а не обещание, что все перечисленные функции войдут в первую версию.
 
+> **Согласовано 28.11.2026:** дизайн Figma Make — визуальный и UX-референс, не техническая база. Технологии: React + Vite на обычном JavaScript (без TypeScript), Django + DRF, SQLite для первого этапа. Next.js и PostgreSQL не входят в начальный каркас. Решение о смене базы принимается по результатам проверки нагрузки перед публичным запуском.
+
 ## 1. Идея проекта / Product idea
 
 **RU.** Easy Learn — full-stack образовательный сайт для новичков, которые хотят освоить HTML, CSS, JavaScript и Python. Пользователь выбирает язык/раздел, проходит короткий мини-курс с видео или анимированными объяснениями, а затем выполняет последовательность из 10–20 практических заданий. Игровая механика сопровождает работу с настоящим кодом: помогает поставить цель, увидеть результат и понять ошибку.
@@ -92,13 +94,15 @@
 
 ## 5. Стек и архитектура / Stack and architecture
 
-**Решение:** React на фронтенде, Django + Django REST Framework на бэкенде, PostgreSQL для постоянных данных. Это full-stack веб-приложение. Учебный HTML/CSS/JS остаётся обычным HTML/CSS/JS: React используется для самого интерфейса платформы, а не навязывается ученику в первых уроках.
+**Решение:** React + Vite на обычном JavaScript на фронтенде, Django + Django REST Framework на бэкенде, SQLite для первой версии данных. Это full-stack веб-приложение. Учебный HTML/CSS/JS остаётся обычным HTML/CSS/JS: React используется для интерфейса платформы. Figma Make не задаёт стек реализации; TypeScript в проект не вводить.
+
+SQLite позволяет запустить продукт без отдельного сервера БД. Django ORM оставляет возможность перейти на PostgreSQL после проверки миграций. Перед публичным запуском проверить параллельные записи попыток и прогресса: у SQLite один писатель одновременно; при блокировках, нескольких экземплярах приложения или требованиях высокой доступности выбрать PostgreSQL. Не использовать SQLite-специфичный SQL в бизнес-логике.
 
 ### Границы компонентов / Component boundaries
 
 - **Frontend (React):** маршруты, страницы треков/заданий, редактор, предпросмотр, подсказки, состояние интерфейса, клиент API.
 - **Backend (Django/DRF):** аккаунты, каталог уроков и заданий, попытки, результаты проверок, прогресс и административное редактирование контента.
-- **Database (PostgreSQL):** пользователи, треки, уроки, задания, тестовые случаи, попытки и прогресс.
+- **Database (SQLite на первом этапе):** пользователи, треки, уроки, задания, тестовые случаи, попытки и прогресс. Критерии пересмотра — выше.
 - **Code execution:** HTML/CSS/JS — изолированный `iframe` с `sandbox` и сообщениями по ограниченному протоколу. Python — не исполнять на Django-процессе; сначала задачи с ожидаемым выводом/логикой, затем отдельный изолированный runtime.
 
 ### Предлагаемая структура репозитория / Proposed repository structure
@@ -107,6 +111,7 @@
 easy-learn/
 ├── ARCHITECTURE.md
 ├── TASK.md
+├── SECURITY.md
 ├── README.md
 ├── .gitignore
 ├── frontend/
@@ -151,12 +156,14 @@ easy-learn/
 
 ## 6. Безопасность и обязательный аудит / Security and mandatory audit
 
+Практические правила и release gate приведены в [`SECURITY.md`](SECURITY.md). Любая функция исполнения кода или сохранения пользовательского ввода проходит отдельное ревью до включения.
+
 Security review — обязательный этап разработки и условие любого публичного релиза. Приложение обучает программированию и принимает недоверенный ввод, поэтому безопасность проектируется до запуска редакторов и проверки кода.
 
 ### Основные угрозы и меры / Threats and controls
 
 - **Stored/reflected/DOM XSS:** экранировать пользовательские данные по контексту; не рендерить пользовательский HTML как доверенную разметку; не использовать опасные HTML-вставки без строгой очистки; CSP как дополнительный слой.
-- **XSS в учебном предпросмотре:** запускать HTML/CSS/JS только в iframe с `sandbox` без `allow-same-origin` и без ненужных разрешений; использовать отдельное origin-подпространство для preview при возможности; проверять `postMessage` по точному origin и схеме сообщений.
+- **XSS в учебном предпросмотре:** запускать HTML/CSS/JS только в iframe с `sandbox` без `allow-same-origin` и без ненужных разрешений; использовать отдельный origin для preview при возможности. Для sandboxed документа с opaque origin одной проверки `event.origin` недостаточно: проверять `event.source`, схему сообщений и идентификатор запуска; при отдельном origin проверять его точное значение дополнительно.
 - **SQL injection:** использовать Django ORM и параметризованные запросы; не строить SQL конкатенацией строк; проверять любые raw SQL участки отдельно.
 - **CSRF, auth и доступ:** включить CSRF-защиту для cookie-auth; проверять права на каждый объект и действие на сервере; не доверять user ID/role из клиента; ограничить частоту входа и чувствительных операций.
 - **Валидация:** валидировать тип, размер и диапазон входных данных на backend; frontend-валидация нужна для UX, но не является защитой.
@@ -177,7 +184,8 @@ Security review — обязательный этап разработки и у
 
 ## 7. UX и визуальный стиль / UX and visual direction
 
-- Дружелюбная мастерская/лаборатория: ученик собирает маленькие работающие штуки, а не проходит перегруженную RPG.
+- Визуальный ориентир — Figma Make «Build Coding Adventure»: тёмный фиолетовый игровой интерфейс, главная с картой миров, четыре мира HTML Island, CSS Kingdom, JavaScript City и Python Universe, экран миссии с целью, подсказкой, редактором и результатом. Использовать игровые образы для объяснения реального кода.
+- Макет показывает 29 миссий (7/7/7/8), карту, playground, quests, leaderboard, achievements, inventory, profile, настройки и регистрацию. Это карта интерфейса, а не подтверждённый объём первого релиза: сначала сквозной учебный сценарий и безопасный редактор; остальные экраны — после проверки базового цикла.
 - На экране задания три понятные зоны: цель и подсказки; редактор; результат/проверка.
 - Цветовые метки отделяют языки, но сохраняют общую систему компонентов.
 - Прогресс показывается как завершённые навыки и проекты, а не только очки.
@@ -194,10 +202,11 @@ Security review — обязательный этап разработки и у
 4. Первый язык интерфейса и озвучки: русский, армянский или английский?
 5. Для первой версии курса выбрать видео, анимации или смешанный формат?
 6. Как организовать совместное прохождение/peer review после одиночного MVP?
+7. Подтвердить объём и содержание миссий: старый план предполагал 10–20 задач на раздел, а дизайн показывает 7/7/7/8. Решить по результатам подготовки контента, не выдавать число из макета за готовые задания.
 
 ## 9. English summary
 
-Easy Learn is a full-stack beginner learning platform for HTML, CSS, JavaScript, and Python. Its core loop is a short explanation followed by a real coding action, immediate feedback, progressive hints, and a small next step. HTML challenges focus on semantic structure; CSS challenges reproduce visual targets; JavaScript challenges add behavior and debugging; Python challenges solve small logic and data problems. React powers the platform UI; Django REST Framework provides the API and learning data; PostgreSQL stores users, content, attempts, and progress. Learner HTML/CSS/JS runs in a sandboxed preview. Untrusted Python must never run inside the Django process; use non-executing exercises initially and a Web Worker or isolated runner later. Build a thin MVP around a few high-quality challenges before expanding content or adding multiplayer features.
+Easy Learn is a full-stack beginner learning platform for HTML, CSS, JavaScript, and Python. Its core loop is a short explanation followed by a real coding action, immediate feedback, progressive hints, and a small next step. HTML challenges focus on semantic structure; CSS challenges reproduce visual targets; JavaScript challenges add behavior and debugging; Python challenges solve small logic and data problems. React with Vite and plain JavaScript powers the platform UI; Django REST Framework provides the API and learning data; SQLite stores initial data. Reassess PostgreSQL before public launch based on concurrent writes and deployment needs. Learner HTML/CSS/JS runs in a sandboxed preview. Untrusted Python must never run inside the Django process; use non-executing exercises initially and an isolated runner later. Build a thin MVP around a few high-quality challenges before expanding content or adding multiplayer features.
 
 ### Product and learning loop
 
@@ -220,7 +229,7 @@ Later phases can add more lessons, integrated projects, profile/achievements, pe
 
 ### Architecture and repository layout
 
-Use React for the platform interface, Django REST Framework for accounts/content/attempts/progress APIs, and PostgreSQL for persistent data. React is the platform technology; beginner lessons still teach plain HTML, CSS, and JavaScript rather than requiring React.
+Use React with Vite and plain JavaScript for the platform interface, Django REST Framework for accounts/content/attempts/progress APIs, and SQLite for initial persistent data. React is the platform technology; beginner lessons still teach plain HTML, CSS, and JavaScript rather than requiring React.
 
 - **Frontend:** routes, track and challenge pages, editor, preview, hints, progress UI, API client.
 - **Backend:** accounts, track/lesson/challenge catalog, attempts, validation results, progress, and admin editing.
@@ -239,6 +248,6 @@ Suggested folders are `frontend/src/{app,pages,features,components,services,styl
 
 ### UX and open decisions
 
-Use a friendly workshop/lab visual direction. A challenge page should have three clear areas: goal and hints, editor, and result/check. Show progress as completed skills and projects, not only points. Support keyboard navigation, readable contrast, clear error labels, and scalable text. Reading lessons should work on mobile; editing is optimized for wider screens.
+Use the Figma Make Coding Adventure visual direction: a dark purple adventure UI with four worlds and mission screens. A challenge page should have three clear areas: goal and hints, editor, and result/check. Show progress as completed skills and projects, not only points. Support keyboard navigation, readable contrast, clear error labels, and scalable text. Reading lessons should work on mobile; editing is optimized for wider screens.
 
 Before implementing dependent features, the team should decide whether the first demo needs accounts or guest mode, which editor to start with, whether Python begins with non-executing exercises or an isolated runtime, the first UI language, and when peer/team review should be introduced.

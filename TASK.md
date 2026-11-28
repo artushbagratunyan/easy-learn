@@ -2,6 +2,8 @@
 
 > Команда: **COUnT, Артуш, Айк**. Все трое участвуют с первой волны. Имена GitHub-аккаунтов и точное распределение задач команда подтверждает перед созданием веток.
 
+> **Решения на 28.11.2026:** Figma Make задаёт внешний вид и сценарии, код из макета не переносится как архитектура. Начальный стек — React + Vite на обычном JavaScript (без TypeScript), Django + DRF, SQLite. Перед публичным запуском проверить параллельную запись и решить, оставаться ли на SQLite. Подробности: [`ARCHITECTURE.md`](ARCHITECTURE.md), [`SECURITY.md`](SECURITY.md).
+
 ## Правила Git / Git workflow
 
 ### Ветки
@@ -42,7 +44,7 @@ git push -u origin feature/<short-name>
 
 ## Волны работ / Work waves
 
-Работы идут волнами. Внутри каждой задачи владелец отвечает за реализацию и PR; остальные помогают ревью. Распределение ниже — стартовое предложение, команда может поменять владельцев до начала волны. Все трое участвуют с первой волны. В каждом разделе целевой объём — 10–20 задач; начать можно с 10 проверенных задач и расширять набор.
+Работы идут волнами. Внутри каждой задачи владелец отвечает за реализацию и PR; остальные помогают ревью. Распределение ниже — стартовое предложение, команда может поменять владельцев до начала волны. Все трое участвуют с первой волны. Старый учебный план предполагает 10–20 задач на раздел; дизайн показывает 29 миссий суммарно (7/7/7/8). Команда уточняет объём контента после проверки первого сквозного сценария.
 
 ### Волна 0 — синхронизация и основа
 
@@ -51,7 +53,7 @@ git push -u origin feature/<short-name>
 - **COUnT:** владелец `ARCHITECTURE.md`; описать путь «выбор раздела → анимированный/видео мини-курс → 10–20 задач → мини-проект»; зафиксировать security требования.
 - **Артуш:** владелец `TASK.md` и Git workflow; проверить настройки репозитория, подготовить `dev` и правила PR.
 - **Айк:** продумать сценарии мини-курсов и анимаций; предложить задания, где ученик сам пишет/исправляет HTML/CSS/JS/Python, и дать ревью архитектуры.
-- **Совместно:** подтвердить аудиторию, язык интерфейса, видео/анимации, необходимость аккаунта в MVP, 10 стартовых задач на трек и угрозы безопасности.
+- **Совместно:** подтвердить аудиторию, язык интерфейса, видео/анимации, необходимость аккаунта в MVP, фактический объём миссий и угрозы безопасности. Числа в дизайне не считать готовым контентом.
 
 **Готово, когда:** документы просмотрены всеми тремя; стек и учебный путь зафиксированы; первая версия проекта и критерии MVP понятны; security gate принят командой; работа ведётся через ветки и PR.
 
@@ -59,12 +61,12 @@ git push -u origin feature/<short-name>
 
 **Цель:** запустить пустые frontend и backend отдельно и описать локальный запуск.
 
-- **COUnT:** React shell, router и страницы Home/Tracks/Course/Challenge (заглушки допустимы); схема прохождения мини-курса.
-- **Артуш:** Django/DRF project, health endpoint, конфигурация через env, базовый API route и первичный список серверных рисков.
+- **COUnT:** React + Vite на JavaScript, shell, router и страницы Home/Worlds/Course/Challenge (заглушки допустимы); схема прохождения мини-курса. Без TypeScript.
+- **Артуш:** Django/DRF project, SQLite, health endpoint, конфигурация через env, базовый API route и первичный список серверных рисков.
 - **Айк:** дизайн-система и адаптивные макеты раздела, главы мини-курса и задачи; сценарий анимации/видео; провести UX ревью каркаса.
 - **Совместно:** README с командами запуска; договориться о формате API и структуре содержимого урока.
 
-**Готово, когда:** frontend запускается; backend отвечает на health endpoint; основные страницы отражают путь «раздел → курс → задачи»; инструкции проверены минимум на чистой локальной настройке одним из других участников.
+**Готово, когда:** frontend запускается; backend отвечает на health endpoint; основные страницы отражают путь «раздел → курс → задачи»; инструкции проверены минимум на чистой локальной настройке одним из других участников. Первый каркас может содержать только Home/Worlds и заглушки для миров; Course/Challenge остаются отдельной задачей волны.
 
 ### Волна 2 — один вертикальный учебный сценарий
 
@@ -130,8 +132,9 @@ git push -u origin feature/<short-name>
 - [ ] Python execution выключен или изолирован с лимитами и повторно проверен.
 - [ ] Зависимости проверены; секретов и `.env` в Git нет.
 - [ ] HTTPS, secure cookies, CSP и production settings проверены.
+- [ ] Параллельные записи попыток/прогресса проверены; решение SQLite или PostgreSQL перед публичным запуском зафиксировано вместе с резервным копированием.
 - [ ] Critical/High проблемы исправлены и перепроверены; результат аудита задокументирован.
 
 ## English summary
 
-The team has three members: COUnT, Artush, and Hayk. All three participate from Wave 0. Each language track starts with a short video/animated mini-course followed by 10–20 progressive coding challenges and a mini-project. Work is split into waves: product alignment, technical skeleton, one end-to-end learning path, progress/content completion, mandatory security audit, then release candidate. Create a task branch from `dev`, push it, and open a PR into `dev`; keep `main` stable and merge `dev` into `main` only for a reviewed release. Every public release is blocked until the documented security audit is complete and all critical/high findings are fixed and rechecked.
+The team has three members: COUnT, Artush, and Hayk. All three participate from Wave 0. The approved initial stack is React with Vite and plain JavaScript, Django/DRF, and SQLite. Figma Make is a visual reference. The old content plan proposes 10–20 challenges per track, while the design depicts 29 missions total; confirm the release scope after the first complete learning path. Work is split into waves: product alignment, technical skeleton, one end-to-end learning path, progress/content completion, mandatory security audit, then release candidate. Create a task branch from `dev`, push it, and open a PR into `dev`; keep `main` stable and merge `dev` into `main` only for a reviewed release. Every public release is blocked until the documented security audit is complete and all critical/high findings are fixed and rechecked.
